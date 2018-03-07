@@ -1,9 +1,27 @@
 version: 2
 jobs:
-  build-and-test:
-    working_directory: ~/project/ios
+  build:    
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: 
+          command: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - node_modules
+  build-ios:
     macos:
       xcode: "9.0"
+    working_directory: ~/project/ios
     
     steps:
       - checkout
@@ -33,6 +51,17 @@ jobs:
 
 workflows:
   version: 2
-  build-and-test:
+  build-react-native:
     jobs:
-      - build-and-test
+      - build:
+        filters:
+          branches:
+            only: master
+          tags:
+            ignore: /^v.*/
+      - build-ios:
+        requires:
+          - build
+        filters:
+          branches:
+            only: master
