@@ -42,3 +42,4 @@ tester_group: fastlane-tester
 
 ### release
 v1.0: add fastlane, crashlytics for [documents](https://github.com/trustcircleglobal/documents/tree/master/technical/client/fastlane).
+v1.1.14: add circle ci for android

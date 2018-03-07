@@ -1,0 +1,100 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run: 
+          command: yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - node_modules
+
+  build-ios:
+    macos:
+      xcode: "9.2.0"
+    working_directory: ~/project/ios
+    environment:
+      FL_OUTPUT_DIR: ~/project/output
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Set Ruby Version
+          command:  echo "ruby-2.4" > ~/.ruby-version
+      # Not using a workspace here as Node and Yarn versions
+      # differ between the macOS image and the Docker containers above.
+      - run: yarn
+      - restore_cache:
+          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
+      - save_cache:
+          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          paths: 
+            - ~/project/vendor/bundle
+      - restore_cache:
+          key: pods-{{ checksum "Podfile" }}
+      - run: bundle exec pod install
+      - save_cache:
+          key: pods-{{ checksum "Podfile" }}
+          paths: 
+            - ~/project/ios/Pods
+      # - run: sudo security delete-certificate -Z 0950B6CD3D2F37EA246A1AAA20DFAADBD6FE1F75 /Library/Keychains/System.keychain
+      # - run: bundle exec fastlane beta
+
+  build-android:
+    working_directory: ~/project/android
+    docker:
+      - image: circleci/android:api-27-node8-alpha
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - restore_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
+      - run: gem install fastlane -NV
+      - save_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          paths: 
+            - ~/project/vendor/bundle
+      - run: cd ~/project && mkdir -p android/app/src/main/assets && yarn copyAndroidBundle && cd android
+      - run: bundle exec fastlane beta
+
+workflows:
+  version: 2
+  build-react-native:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: 
+                - master
+                - circleci-android
+            tags:
+              ignore: /^v.*/
+      - build-ios:
+          requires:            
+            - build
+          filters:
+            branches:
+              only: master
+      - build-android:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master 
+                - circleci-android
