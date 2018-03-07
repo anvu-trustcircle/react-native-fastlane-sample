@@ -1,66 +1,149 @@
 version: 2
 jobs:
-  build:
+  build:    
+    # branches:
+    #   only:
+    #     - master
     working_directory: ~/project
     docker:
       - image: circleci/node:8
     steps:
       - checkout
       - restore_cache:
-        key: dependency-cache-{{ checksum "package.json" }}
+          key: dependency-cache-{{ checksum "package.json" }}
       - run: 
-        command: yarn
+          command: yarn
       - save_cache:
-        key: dependency-cache-{{ checksum "package.json" }}
-        paths:
-          - node_modules
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+      # - run: yarn run test
       - persist_to_workspace:
-        root: ~/project
-        paths:
-          - node_modules
+          root: ~/project
+          paths:
+            - node_modules
+      # - run: 
+      #     name: Copy Android Bundle
+      #     command: yarn copyAndroidBundle
+      # - store_test_results:
+      #     path: ~/project/junit.xml
+      # - run: 
+      #     name: Install ActiveSupport
+      #     command: gem install activesupport -v 4.2.6
+      # - run:
+      #     name: Deploy web
+      #     command: yarn build-web
+  web:
+    # branches:
+    #   only:
+    #     - master
+    working_directory: ~/project
+    docker:
+      - image: toandk/react-native-circleci:1.4
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Deploy web
+          command: yarn build-web
+
+  android:
+    # branches:
+    #   only:
+    #     - master
+    working_directory: ~/project/android
+    docker:
+      - image: circleci/android:api-27-node8-alpha
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - restore_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --path ~/project/vendor/bundle
+      - save_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          paths: 
+            - ~/project/vendor/bundle
+
+      - run: cd ~/project && yarn copyAndroidBundle && cd android
+      - run: bundle exec fastlane beta_c
+      # - store_test_results:
+      #     path: ~/project/android/reports
+
   ios:
+    # branches:
+    #   only:
+    #     - master
     macos:
       xcode: "9.0"
     working_directory: ~/project/ios
-
+    # docker:
+    #   - image: toandk/react-native-circleci:1.4
+    environment:
+      FL_OUTPUT_DIR: ~/project/output
+    shell: /bin/bash --login -o pipefail
     steps:
       - checkout:
-        path: ~/project
+          path: ~/project
       - run:
-        name: Fetch CocoaPods Specs
-        command: |
-          curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
-      - run:
-        name: Install CocoaPods
-        command: pod install --verbose
-      - run:
-        name: Build and run tests
-        command: fastlane scan
-        environment:
-          SCAN_DEVICE: iPhone 8
-          SCAN_SCHEME: WebTests
-      - store_test_results:
-        path: test_output/report.xml
-      - store_artifacts:
-        path: /tmp/test-results
-        destination: scan-test-results
-      - store_artifacts:
-        path: ~/Library/Logs/scan
-        destination: scan-logs
+          name: Set Ruby Version
+          command:  echo "ruby-2.4" > ~/.ruby-version
+      # Not using a workspace here as Node and Yarn versions
+      # differ between the macOS image and the Docker containers above.
+      - run: yarn
+      - restore_cache:
+          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --path ~/project/vendor/bundle
+      - save_cache:
+          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          paths: 
+            - ~/project/vendor/bundle
+      # - run: bundle exec pod check || bundle exec pod install || bundle exec pod install --repo-update --verbose
+      - restore_cache:
+          key: pods-{{ checksum "Podfile" }}
+      - run: bundle exec pod install
+      - save_cache:
+          key: pods-{{ checksum "Podfile" }}
+          paths: 
+            - ~/project/ios/Pods
+      - run: bundle exec fastlane beta_c
+      # - run:
+      #     command: cp $FL_OUTPUT_DIR/scan/report.junit $FL_OUTPUT_DIR/scan/results.xml
+      #     when: always
+      # - store_artifacts:
+      #     path: ~/project/output
+      # - store_test_results:
+      #     path: ~/project/output/scan
 
 workflows:
   version: 2
-  build-react-native:
+  node-android-ios:
     jobs:
       - build:
-        filters:
-          branches:
-            only: master
-          tags:
-            ignore: /^v.*/
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /^v.*/
+      - web:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - android:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
       - ios:
-        requires:
-          - build
-        filters:
-          branches:
-            only: master
+          requires:            
+            - build
+          filters:
+            branches:
+              only: master
