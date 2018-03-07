@@ -39,3 +39,6 @@ api_token: 170c87df1b26132ef28510f40376dd75cb61f489
 build_secrect: 993c5ab5dbbd48e1f585a02fe66762340c4f8860b2136e177d9a9c6c341de21c
 
 tester_group: fastlane-tester
+
+### release
+v1.0: add fastlane, crashlytics for [documents](https://github.com/trustcircleglobal/documents/tree/master/technical/client/fastlane).
