@@ -1,36 +1,35 @@
 version: 2
 jobs:
   build-and-test:
+    - working_directory: ~/project/ios
     macos:
       xcode: "9.0"
-
+    
     steps:
       - checkout
       - run:
-          command: cd ios
+        name: Fetch CocoaPods Specs
+        command: |
+          curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
       - run:
-          name: Fetch CocoaPods Specs
-          command: |
-            curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
-      - run:
-          name: Install CocoaPods
-          command: pod install --verbose
+        name: Install CocoaPods
+        command: pod install --verbose
 
       - run:
-          name: Build and run tests
-          command: fastlane scan
-          environment:
-            SCAN_DEVICE: iPhone 8
-            SCAN_SCHEME: WebTests
+        name: Build and run tests
+        command: fastlane scan
+        environment:
+          SCAN_DEVICE: iPhone 8
+          SCAN_SCHEME: WebTests
 
       - store_test_results:
-          path: test_output/report.xml
+        path: test_output/report.xml
       - store_artifacts:
-          path: /tmp/test-results
-          destination: scan-test-results
+        path: /tmp/test-results
+        destination: scan-test-results
       - store_artifacts:
-          path: ~/Library/Logs/scan
-          destination: scan-logs
+        path: ~/Library/Logs/scan
+        destination: scan-logs
 
 workflows:
   version: 2
