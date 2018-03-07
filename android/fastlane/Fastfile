@@ -1,0 +1,28 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  lane :beta do
+    gradle(task: "assembleRelease")
+    crashlytics(
+      api_token: "170c87df1b26132ef28510f40376dd75cb61f489",
+      build_secret: "993c5ab5dbbd48e1f585a02fe66762340c4f8860b2136e177d9a9c6c341de21c",
+      groups: "fastlane-tester",
+      notes: change_log_since_last_tag
+    )
+  end
+  
+  def change_log_since_last_tag
+    return changelog_from_git_commits(pretty: '%h %s')
+  end
+end
