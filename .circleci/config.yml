@@ -77,7 +77,9 @@ workflows:
       - build:
           filters:
             branches:
-              only: master
+              only: 
+                - master
+                - circleci-android
             tags:
               ignore: /^v.*/
       - build-ios:
