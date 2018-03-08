@@ -14,18 +14,10 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - node_modules
-      # - restore_cache:
-      #     key: v1-bundle-{{ checksum "Gemfile.lock" }}
-      # - run: bundle install --path ~/project/vendor/bundle
-      # - save_cache:
-      #     key: v1-bundle-{{ checksum "Gemfile.lock" }}
-      #     paths: 
-      #       - ~/project/vendor/bundle
       - persist_to_workspace:
           root: ~/project
           paths:
             - node_modules
-            - vendor/bundle
 
   build-ios:
     macos:
@@ -75,7 +67,7 @@ jobs:
           key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
           paths: 
             - ~/project/vendor/bundle
-      - run: cd ~/project && yarn copyAndroidBundle && cd android
+      - run: cd ~/project && mkdir -p android/app/src/main/assets && yarn copyAndroidBundle && cd android
       - run: bundle exec fastlane beta
 
 workflows:
@@ -99,4 +91,4 @@ workflows:
             - build
           filters:
             branches:
-              only: master
+              only: circleci-android
