@@ -25,7 +25,7 @@ jobs:
           root: ~/project
           paths:
             - node_modules
-            - ~/project/vendor/bundle
+            - vendor/bundle
 
   build-ios:
     macos:
