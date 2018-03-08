@@ -4,7 +4,22 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
+    "postversion": "react-native-version",
+    "test": "jest",
+    "web": "webpack-dev-server --config web/webpack.config.js --hot",
+    "build": "webpack -p --config web/webpack.prod.config.js",
+    "deploy": "firebase deploy",
+    "build-web": "yarn build && yarn deploy",
+    "build-ios": "cd ios && pod install && fastlane beta_c && cd ..",
+    "build-android": "yarn copyAndroidBundle && cd android && fastlane beta_c && cd ..",
+    "flow": "flow",
+    "copyAndroidBundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "bundleInsideAndroid": "cd .. && yarn copyAndroidBundle && cd android",
+    "format": "prettier --single-quote --trailing-comma es5 --write 'src/*.js'",
+    "ios": "react-native run-ios",
+    "android": "react-native run-android",
+    "web:serve": "http-serve -p 3001 --gzip true ./web/dist",
+    "build-web-local": "yarn build && yarn web:serve"
   },
   "dependencies": {
     "react": "16.2.0",
