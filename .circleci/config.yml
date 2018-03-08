@@ -14,13 +14,13 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - node_modules
-      - restore_cache:
-          key: v1-bundle-{{ checksum "Gemfile.lock" }}
-      - run: bundle install --path ~/project/vendor/bundle
-      - save_cache:
-          key: v1-bundle-{{ checksum "Gemfile.lock" }}
-          paths: 
-            - ~/project/vendor/bundle
+      # - restore_cache:
+      #     key: v1-bundle-{{ checksum "Gemfile.lock" }}
+      # - run: bundle install --path ~/project/vendor/bundle
+      # - save_cache:
+      #     key: v1-bundle-{{ checksum "Gemfile.lock" }}
+      #     paths: 
+      #       - ~/project/vendor/bundle
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -68,13 +68,13 @@ jobs:
           path: ~/project
       - attach_workspace:
           at: ~/project
-      # - restore_cache:
-      #     key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
-      # - run: bundle install --path ~/project/vendor/bundle
-      # - save_cache:
-      #     key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
-      #     paths: 
-      #       - ~/project/vendor/bundle
+      - restore_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
+      - save_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          paths: 
+            - ~/project/vendor/bundle
       - run: cd ~/project && yarn copyAndroidBundle && cd android
       - run: bundle exec fastlane beta
 
