@@ -27,7 +27,7 @@ jobs:
       FL_OUTPUT_DIR: ~/project/output
     shell: /bin/bash --login -o pipefail
     steps:
-      - checkout:
+      - checkout
       - run:
         name: Fetch CocoaPods Specs
         command: |
