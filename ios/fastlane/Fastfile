@@ -17,19 +17,20 @@ platform :ios do
     # 1
     increment_build_number
     # 2
-    match(type: "enterprise")
+    puts ENV["MATCH_PASSWORD"]='abc123'
+    # match(type: "enterprise")
     # 3
-    gym(
-      scheme: "FastlaneSample",
-      export_method: "enterprise",
-      xcargs: "ARCHIVE=YES")
+    # gym(
+    #       scheme: "FastlaneSample",
+    #       export_method: "enterprise",
+    #       xcargs: "ARCHIVE=YES")
     # 4
-    crashlytics(
-      api_token: "170c87df1b26132ef28510f40376dd75cb61f489",
-      build_secret: "993c5ab5dbbd48e1f585a02fe66762340c4f8860b2136e177d9a9c6c341de21c",
-      groups: "fastlane-tester",
-      notes: change_log_since_last_tag
-    )
+    # crashlytics(
+    #       api_token: "170c87df1b26132ef28510f40376dd75cb61f489",
+    #       build_secret: "993c5ab5dbbd48e1f585a02fe66762340c4f8860b2136e177d9a9c6c341de21c",
+    #       groups: "fastlane-tester",
+    #       notes: change_log_since_last_tag
+    #     )
   end
   
   def change_log_since_last_tag

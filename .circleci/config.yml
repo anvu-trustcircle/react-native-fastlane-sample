@@ -36,15 +36,15 @@ jobs:
       # differ between the macOS image and the Docker containers above.
       - run: yarn
       - restore_cache:
-          key: v2-bundle-{{ checksum "~/project/ios/Gemfile.lock" }}
-      - run: bundle install --path ~/project/vendor/bundle
+          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
       - save_cache:
-          key: v2-bundle-{{ checksum "~/project/ios/Gemfile.lock" }}
+          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
           paths: 
             - ~/project/vendor/bundle
       - restore_cache:
           key: pods-{{ checksum "Podfile" }}
-      - run: bundle exec pod install
+      # - run: bundle exec pod install
       - save_cache:
           key: pods-{{ checksum "Podfile" }}
           paths: 
