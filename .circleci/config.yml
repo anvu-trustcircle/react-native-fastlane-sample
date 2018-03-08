@@ -19,7 +19,7 @@ jobs:
           paths:
             - node_modules
 
-  ios:
+  build-ios:
     macos:
       xcode: "9.0"
     working_directory: ~/project/ios
@@ -49,11 +49,13 @@ jobs:
           key: pods-{{ checksum "Podfile" }}
           paths: 
             - ~/project/ios/Pods
-      - run: bundle exec fastlane beta_c
+      - run: bundle exec fastlane beta
 
+  build-android:
+    
 workflows:
   version: 2
-  node-android-ios:
+  build-react-native:
     jobs:
       - build:
           filters:
@@ -61,8 +63,14 @@ workflows:
               only: master
             tags:
               ignore: /^v.*/
-      - ios:
+      - build-ios:
           requires:            
+            - build
+          filters:
+            branches:
+              only: master
+      - build-android:
+          requires:
             - build
           filters:
             branches:
