@@ -49,7 +49,7 @@ jobs:
           key: pods-{{ checksum "Podfile" }}
           paths: 
             - ~/project/ios/Pods
-      # - run: bundle exec fastlane beta
+      - run: bundle exec fastlane beta
 
 workflows:
   version: 2

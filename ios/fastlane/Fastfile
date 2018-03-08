@@ -17,7 +17,7 @@ platform :ios do
     # 1
     increment_build_number
     # 2
-    puts ENV["MATCH_PASSWORD"]='abc123'
+    ENV["MATCH_PASSWORD"]='abc123'
     # match(type: "enterprise")
     # 3
     # gym(
