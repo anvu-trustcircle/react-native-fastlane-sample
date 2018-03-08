@@ -28,28 +28,28 @@ jobs:
     shell: /bin/bash --login -o pipefail
     steps:
       - checkout:
-          path: ~/project
+        path: ~/project
       - run:
-          name: Set Ruby Version
-          command:  echo "ruby-2.4" > ~/.ruby-version
-      # Not using a workspace here as Node and Yarn versions
-      # differ between the macOS image and the Docker containers above.
-      - run: yarn
-      - restore_cache:
-          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
-      - run: bundle install --path ~/project/vendor/bundle
-      - save_cache:
-          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
-          paths: 
-            - ~/project/vendor/bundle
-      - restore_cache:
-          key: pods-{{ checksum "Podfile" }}
-      - run: bundle exec pod install
-      - save_cache:
-          key: pods-{{ checksum "Podfile" }}
-          paths: 
-            - ~/project/ios/Pods
-      - run: bundle exec fastlane beta_c
+        name: Fetch CocoaPods Specs
+        command: |
+          curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
+      - run:
+        name: Install CocoaPods
+        command: pod install --verbose
+      - run:
+        name: Build and run tests
+        command: fastlane scan
+        environment:
+          SCAN_DEVICE: iPhone 8
+          SCAN_SCHEME: WebTests
+      - store_test_results:
+        path: test_output/report.xml
+      - store_artifacts:
+        path: /tmp/test-results
+        destination: scan-test-results
+      - store_artifacts:
+        path: ~/Library/Logs/scan
+        destination: scan-logs
 
 workflows:
   version: 2
