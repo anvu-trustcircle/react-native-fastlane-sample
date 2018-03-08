@@ -44,11 +44,31 @@ jobs:
             - ~/project/vendor/bundle
       - restore_cache:
           key: pods-{{ checksum "Podfile" }}
-      # - run: bundle exec pod install
+      - run: bundle exec pod install
       - save_cache:
           key: pods-{{ checksum "Podfile" }}
           paths: 
             - ~/project/ios/Pods
+      - run: bundle exec fastlane beta
+
+  build-android:
+    working_directory: ~/project/android
+    docker:
+      - image: circleci/android:api-27-node8-alpha
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - restore_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+      - run: bundle install --path ~/project/vendor/bundle
+      - save_cache:
+          key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          paths: 
+            - ~/project/vendor/bundle
+
+      - run: cd ~/project && yarn copyAndroidBundle && cd android
       - run: bundle exec fastlane beta
 
 workflows:
@@ -67,3 +87,9 @@ workflows:
           filters:
             branches:
               only: master
+      - build-android:
+          requires:
+            - build
+          filters:
+            branches:
+              only: masters
