@@ -67,7 +67,6 @@ jobs:
           key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
           paths: 
             - ~/project/vendor/bundle
-
       - run: cd ~/project && yarn copyAndroidBundle && cd android
       - run: bundle exec fastlane beta
 
