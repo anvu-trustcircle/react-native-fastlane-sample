@@ -16,7 +16,7 @@ platform :ios do
   lane :beta do
     increment_build_number
     ENV["MATCH_PASSWORD"]="abc123"
-    ENV["FASTLANE_PASSWORD"]="ab798979"
+    ENV["FASTLANE_PASSWORD"]="PAprowar3"
     match(type: "enterprise")
     gym(
       scheme: "FastlaneSample",
