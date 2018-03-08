@@ -50,8 +50,6 @@ jobs:
           paths: 
             - ~/project/ios/Pods
       - run: bundle exec fastlane beta
-
-  build-android:
     
 workflows:
   version: 2
@@ -65,12 +63,6 @@ workflows:
               ignore: /^v.*/
       - build-ios:
           requires:            
-            - build
-          filters:
-            branches:
-              only: master
-      - build-android:
-          requires:
             - build
           filters:
             branches:
