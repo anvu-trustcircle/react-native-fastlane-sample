@@ -64,6 +64,8 @@ jobs:
           key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
       - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
       - run: gem install fastlane -NV
+      - run: yarn
+      - run: react-native link
       - save_cache:
           key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
           paths: 
@@ -107,7 +109,7 @@ workflows:
           filters:
             branches:
               only:
-                # - master 
+                - master
       - build-web:
           requires:
             - build
