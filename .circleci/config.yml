@@ -49,8 +49,7 @@ jobs:
           key: pods-{{ checksum "Podfile" }}
           paths: 
             - ~/project/ios/Pods
-      # - run: sudo security delete-certificate -Z 0950B6CD3D2F37EA246A1AAA20DFAADBD6FE1F75 /Library/Keychains/System.keychain
-      # - run: bundle exec fastlane beta
+      - run: bundle exec fastlane beta
 
   build-android:
     working_directory: ~/project/android
@@ -72,6 +71,19 @@ jobs:
       - run: cd ~/project && mkdir -p android/app/src/main/assets && yarn copyAndroidBundle && cd android
       - run: bundle exec fastlane beta
 
+  build-web:
+    working_directory: ~/project
+    # docker:
+    #   - image: toandk/react-native-circleci:1.4
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Deploy web
+          command: yarn build-web
+
 workflows:
   version: 2
   build-react-native:
@@ -81,7 +93,6 @@ workflows:
             branches:
               only: 
                 - master
-                - circleci-android
             tags:
               ignore: /^v.*/
       - build-ios:
@@ -96,5 +107,10 @@ workflows:
           filters:
             branches:
               only:
-                - master 
-                - circleci-android
+                # - master 
+      - build-web:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
