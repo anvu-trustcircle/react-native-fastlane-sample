@@ -65,7 +65,7 @@ jobs:
       - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
       - run: gem install fastlane -NV
       - run: yarn
-      - run: react-native link
+      - run: yarn link
       - save_cache:
           key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
           paths: 
@@ -75,8 +75,10 @@ jobs:
 
   build-web:
     working_directory: ~/project
-    docker:
-      - image: toandk/react-native-circleci:1.4
+    machine:
+      enable: true
+    # docker:
+    #   - image: toandk/react-native-circleci:1.4
     steps:
       - checkout:
           path: ~/project
@@ -84,7 +86,7 @@ jobs:
           at: ~/project
       - run:
           name: Deploy web
-          command: yarn build-web
+          command: yarn build && firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
 
 workflows:
   version: 2
