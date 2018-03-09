@@ -73,8 +73,8 @@ jobs:
 
   build-web:
     working_directory: ~/project
-    # docker:
-    #   - image: toandk/react-native-circleci:1.4
+    docker:
+      - image: toandk/react-native-circleci:1.4
     steps:
       - checkout:
           path: ~/project
