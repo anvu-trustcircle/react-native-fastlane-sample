@@ -13,7 +13,6 @@ default_platform(:ios)
 
 platform :ios do
   before_all do
-    git_pull(only_tags: true)
     setup_circle_ci
   end
   
@@ -31,11 +30,6 @@ platform :ios do
       groups: "fastlane-tester",
       notes: change_log_since_last_tag
     )
-  end
-  
-  def setup_circle_ci
-    # ENV["MATCH_PASSWORD"]="abc123"
-    # ENV["FASTLANE_PASSWORD"]="Starfall0216"
   end
   
   def change_log_since_last_tag
