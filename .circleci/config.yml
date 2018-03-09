@@ -85,6 +85,7 @@ jobs:
           path: ~/project
       - attach_workspace:
           at: ~/project
+      - run: sudo npm install --save-dev firebase-tools
       - run:
           name: Deploy web
           command: yarn build && firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
@@ -98,6 +99,7 @@ workflows:
             branches:
               only: 
                 - master
+                - circleci-web
             tags:
               ignore: /^v.*/
       - build-ios:
@@ -118,4 +120,6 @@ workflows:
             - build
           filters:
             branches:
-              only: master
+              only: 
+                - master
+                - circleci-web
