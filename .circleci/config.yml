@@ -75,9 +75,10 @@ jobs:
 
   build-web:
     working_directory: ~/project
-    machine:
-      enable: true
-    # docker:
+    # machine:
+    #   enable: true
+    docker:
+      - image: circleci/node:8
     #   - image: toandk/react-native-circleci:1.4
     steps:
       - checkout:
