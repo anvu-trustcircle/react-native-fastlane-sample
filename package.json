@@ -7,7 +7,7 @@
     "postversion": "react-native-version",
     "test": "jest",
     "web": "webpack-dev-server --config web/webpack.config.js --hot",
-    "build": "webpack -p --config web/webpack.prod.config.js",
+    "build": "webpack -p --config web/webpack.config.js",
     "deploy": "firebase deploy",
     "build-web": "yarn build && yarn deploy",
     "build-ios": "cd ios && pod install && fastlane beta_c && cd ..",
@@ -23,13 +23,22 @@
   },
   "dependencies": {
     "react": "16.2.0",
-    "react-native": "0.53.3"
+    "react-dom": "^16.2.0",
+    "react-native": "0.53.3",
+    "react-native-web": "^0.5.2"
   },
   "devDependencies": {
     "babel-jest": "22.4.1",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-react-native-web": "^0.5.2",
     "babel-preset-react-native": "4.0.0",
+    "firebase-tools": "^3.17.5",
     "jest": "22.4.2",
-    "react-test-renderer": "16.2.0"
+    "react-test-renderer": "16.2.0",
+    "url-loader": "^1.0.1",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.10",
+    "webpack-dev-server": "^3.1.0"
   },
   "jest": {
     "preset": "react-native"

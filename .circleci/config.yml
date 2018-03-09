@@ -9,7 +9,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run: 
-          command: yarn
+          command: yarn && yarn link
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
@@ -49,8 +49,7 @@ jobs:
           key: pods-{{ checksum "Podfile" }}
           paths: 
             - ~/project/ios/Pods
-      # - run: sudo security delete-certificate -Z 0950B6CD3D2F37EA246A1AAA20DFAADBD6FE1F75 /Library/Keychains/System.keychain
-      # - run: bundle exec fastlane beta
+      - run: bundle exec fastlane beta
 
   build-android:
     working_directory: ~/project/android
@@ -69,8 +68,23 @@ jobs:
           key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
           paths: 
             - ~/project/vendor/bundle
+      - run: yarn && yarn link
       - run: cd ~/project && mkdir -p android/app/src/main/assets && yarn copyAndroidBundle && cd android
       - run: bundle exec fastlane beta
+
+  build-web:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - run: yarn
+      - run:
+          name: Deploy web
+          command: yarn build && yarn firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
 
 workflows:
   version: 2
@@ -81,7 +95,7 @@ workflows:
             branches:
               only: 
                 - master
-                - circleci-android
+                - circleci-web
             tags:
               ignore: /^v.*/
       - build-ios:
@@ -96,5 +110,12 @@ workflows:
           filters:
             branches:
               only:
-                - master 
-                - circleci-android
+                - master
+      - build-web:
+          requires:
+            - build
+          filters:
+            branches:
+              only: 
+                - master
+                - circleci-web
