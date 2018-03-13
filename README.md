@@ -45,3 +45,4 @@ v1.0: add fastlane, crashlytics for [documents](https://github.com/trustcirclegl
 v1.1.14: add circle ci for android
 v1.2.8: add circle ci for web
 v1.3.17: add circle ci for ios
+v1.4.6: fix circle ci for android

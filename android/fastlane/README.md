@@ -21,6 +21,11 @@ or alternatively using `brew cask install fastlane`
 fastlane android beta
 ```
 
+### android beta2
+```
+fastlane android beta2
+```
+
 
 ----
 

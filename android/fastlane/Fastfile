@@ -13,7 +13,10 @@ default_platform(:android)
 
 platform :android do
   lane :beta do
-    gradle(task: "assembleRelease")
+    gradle(
+      task: "assembleRelease",
+      flags: "--no-daemon"
+    )
     crashlytics(
       api_token: "170c87df1b26132ef28510f40376dd75cb61f489",
       build_secret: "993c5ab5dbbd48e1f585a02fe66762340c4f8860b2136e177d9a9c6c341de21c",

@@ -21,7 +21,7 @@ jobs:
 
   build-ios:
     macos:
-      xcode: "9.0"
+    xcode: "8.3.3"
     working_directory: ~/project/ios
     environment:
       FL_OUTPUT_DIR: ~/project/output
@@ -36,11 +36,11 @@ jobs:
       # differ between the macOS image and the Docker containers above.
       - run: cd .. && yarn && cd ios
       - restore_cache:
-          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
-      - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
+          key: v2-bundle-{{ checksum "Gemfile.lock" }}
+      - run: bundle install --path ~/project/vendor/bundle
       - run: sudo gem install fastlane
       - save_cache:
-          key: v2-bundle-{{ checksum "~/project/Gemfile.lock" }}
+          key: v2-bundle-{{ checksum "Gemfile.lock" }}
           paths: 
             - ~/project/vendor/bundle
       - restore_cache:
@@ -50,43 +50,58 @@ jobs:
           key: pods-{{ checksum "Podfile" }}
           paths: 
             - ~/project/ios/Pods
-      - run: bundle exec fastlane beta
+    - run: bundle exec fastlane beta
 
   build-android:
-    working_directory: ~/project/android
-    docker:
-      - image: circleci/android:api-25-node8-alpha
-    steps:
-      - checkout:
-          path: ~/project
-      # - attach_workspace:
-      #     at: ~/project
-      - run: cd .. && yarn && cd android
-      # - restore_cache:
-      #     key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
-      - run: bundle install --gemfile ~/project/Gemfile --path ~/project/vendor/bundle
-      - run: gem install fastlane -NV
-      # - save_cache:
-      #     key: v1-bundle-{{ checksum "~/project/Gemfile.lock" }}
-      #     paths: 
-      #       - ~/project/vendor/bundle
-      - run: cd ~/project && mkdir -p android/app/src/main/assets && yarn copyAndroidBundle && cd android
-      - run: export TERM=xterm && ./gradlew clean assembleRelease -p . --no-daemon --max-workers 2
-      - run: bundle exec fastlane beta2
+  working_directory: ~/project/android
+  docker:
+    - image: circleci/android:api-27-node8-alpha
+  enviroment:
+    TERM: dumb
+    _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
+  steps:
+    - checkout:
+        path: ~/project
+    - attach_workspace:
+        at: ~/project
+    - run: cd .. && yarn && cd android
+    
+    - restore_cache:
+        key: v1-bundle-{{ checksum "Gemfile.lock" }}
+    - run: bundle install --path ~/project/vendor/bundle
+    - run: gem install fastlane -NV
+    - save_cache:
+        key: v1-bundle-{{ checksum "Gemfile.lock" }}
+        paths: 
+          - ~/project/vendor/bundle
+    
+    - restore_cache:
+        key: v1-gradle-{{ checksum "gradle/wrapper/gradle-wrapper.properties"}}-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}
+    - run: export TERM=dumb && ./gradlew androidDependencies --debug
+    - save_cache:
+        key: v1-gradle-{{ checksum "gradle/wrapper/gradle-wrapper.properties"}}-{{ checksum "build.gradle" }}-{{ checksum "app/build.gradle" }}
+        paths:
+          - ~/.gradle
+          - ~/.m2
+    
+    - run: cd ~/project && mkdir -p android/app/src/main/assets && yarn copyAndroidBundle && cd android
+    - run: bundle exec fastlane beta
 
   build-web:
-    working_directory: ~/project
-    docker:
-      - image: circleci/node:8
-    steps:
-      - checkout:
-          path: ~/project
-      - attach_workspace:
-          at: ~/project
-      - run: yarn
-      - run:
-          name: Deploy web
-          command: yarn build && yarn firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
+  working_directory: ~/project
+  docker:
+    - image: circleci/node:8
+  steps:
+    - checkout:
+        path: ~/project
+    - attach_workspace:
+        at: ~/project
+    # - run: npm install --save-dev firebase-tools
+    - run: yarn
+    - run:
+        name: Deploy web
+        command: yarn build && yarn firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
 
 workflows:
   version: 2
@@ -95,8 +110,7 @@ workflows:
       - build:
           filters:
             branches:
-              only: 
-                - master
+              only: master
             tags:
               ignore: /^v.*/
       - build-ios:
@@ -110,8 +124,7 @@ workflows:
             - build
           filters:
             branches:
-              only:
-                - master
+              only: master
       - build-web:
           requires:
             - build
