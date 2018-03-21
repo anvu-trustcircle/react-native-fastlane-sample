@@ -41,8 +41,15 @@ build_secrect: 993c5ab5dbbd48e1f585a02fe66762340c4f8860b2136e177d9a9c6c341de21c
 tester_group: fastlane-tester
 
 ### release
+
 v1.0: add fastlane, crashlytics for [documents](https://github.com/trustcircleglobal/documents/tree/master/technical/client/fastlane).
+
 v1.1.14: add circle ci for android
+
 v1.2.8: add circle ci for web
+
 v1.3.17: add circle ci for ios
-v1.4.6: fix circle ci for android
+
+v1.4.12: release circle ci for docs example
+
+v1.4.13: add counter example, remote-redux-devtools for [documents](https://github.com/trustcircleglobal/documents/tree/master/technical/client/redux-devtools).

@@ -11,9 +11,11 @@
     "deploy": "firebase deploy",
     "build-web": "yarn build && yarn deploy",
     "build-ios": "cd ios && pod install && fastlane beta_c && cd ..",
-    "build-android": "yarn copyAndroidBundle && cd android && fastlane beta_c && cd ..",
+    "build-android":
+      "yarn copyAndroidBundle && cd android && fastlane beta_c && cd ..",
     "flow": "flow",
-    "copyAndroidBundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "copyAndroidBundle":
+      "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
     "bundleInsideAndroid": "cd .. && yarn copyAndroidBundle && cd android",
     "format": "prettier --single-quote --trailing-comma es5 --write 'src/*.js'",
     "ios": "react-native run-ios",
@@ -25,7 +27,11 @@
     "react": "16.2.0",
     "react-dom": "^16.2.0",
     "react-native": "0.53.3",
-    "react-native-web": "^0.5.2"
+    "react-native-web": "^0.5.2",
+    "react-redux": "^5.0.7",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+    "remote-redux-devtools": "^0.5.12"
   },
   "devDependencies": {
     "babel-jest": "22.4.1",
